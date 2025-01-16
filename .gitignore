@@ -73,3 +73,15 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Google service account file
+android/app/google-services.json
+
+# Config file
+src/config.js
+
+# IDE
+/.vscode
+/.idea
+/.vs
+*.code-workspace
