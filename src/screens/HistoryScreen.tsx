@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { db } from '../firebase/config';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 
 const HistoryScreen = () => {
   const [logs, setLogs] = useState<any[]>([]);
@@ -11,6 +11,7 @@ const HistoryScreen = () => {
     fetchLogs();
   }, []);
 
+  // Fetch logs from Firestore
   const fetchLogs = async () => {
     setLoading(true);
     try {
@@ -21,6 +22,17 @@ const HistoryScreen = () => {
       console.error("Error fetching logs: ", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Delete log from Firestore
+  const deleteLog = async (logId: string) => {
+    try {
+      await deleteDoc(doc(db, "logs", logId));
+      Alert.alert("Deleted", "The log has been removed.");
+      fetchLogs(); // Refresh the list after deletion
+    } catch (error) {
+      Alert.alert("Error", "Failed to delete the log.");
     }
   };
 
@@ -39,7 +51,14 @@ const HistoryScreen = () => {
             <View style={styles.logItem}>
               <Text style={styles.logText}>Tag ID: {item.tagId}</Text>
               <Text style={styles.logText}>Activity: {item.activityType}</Text>
-              <Text style={styles.timestamp}>Time: {new Date(item.timestamp.seconds * 1000).toLocaleString()}</Text>
+              <Text style={styles.timestamp}>
+                Time: {new Date(item.timestamp.seconds * 1000).toLocaleString()}
+              </Text>
+
+              {/* Delete button */}
+              <TouchableOpacity style={styles.deleteButton} onPress={() => deleteLog(item.id)}>
+                <Text style={styles.deleteText}>Delete</Text>
+              </TouchableOpacity>
             </View>
           )}
         />
@@ -55,6 +74,8 @@ const styles = StyleSheet.create({
   logItem: { backgroundColor: "#fff", padding: 15, borderRadius: 8, marginBottom: 10, elevation: 2 },
   logText: { fontSize: 16, fontWeight: "bold" },
   timestamp: { fontSize: 14, color: "gray", marginTop: 5 },
+  deleteButton: { backgroundColor: "red", padding: 8, borderRadius: 5, marginTop: 10 },
+  deleteText: { color: "#fff", fontWeight: "bold", textAlign: "center" },
 });
 
 export default HistoryScreen;
