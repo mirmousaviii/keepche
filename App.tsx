@@ -5,6 +5,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import NfcScreen from './src/screens/NfcScreen';
 import HistoryScreen from './src/screens/HistoryScreen';
 import RegisterTagScreen from './src/screens/RegisterTagScreen';
+import RegisteredTagsScreen from './src/screens/RegisteredTagsScreen';
 
 const Stack = createStackNavigator();
 
@@ -21,6 +22,9 @@ const HomeScreen = ({ navigation }) => {
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Register Tag')}>
         <Text style={styles.buttonText}>Register NFC Tag</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Registered Tags')}>
+        <Text style={styles.buttonText}>View Registered Tags</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -33,6 +37,7 @@ const App = () => {
         <Stack.Screen name="Scan NFC" component={NfcScreen} />
         <Stack.Screen name="History" component={HistoryScreen} />
         <Stack.Screen name="Register Tag" component={RegisterTagScreen} />
+        <Stack.Screen name="Registered Tags" component={RegisteredTagsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
