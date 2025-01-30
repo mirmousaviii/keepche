@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import {
+  View, Text, FlatList, ActivityIndicator, StyleSheet,
+  TouchableOpacity, Alert
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { db } from '../firebase/config';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 
 const RegisteredTagsScreen = () => {
   const [tags, setTags] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigation = useNavigation(); // Navigation hook to navigate between screens
 
   useEffect(() => {
     fetchTags();
@@ -39,6 +44,15 @@ const RegisteredTagsScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Registered NFC Tags</Text>
+
+      {/* Button to Register a New Tag */}
+      <TouchableOpacity
+        style={styles.registerButton}
+        onPress={() => navigation.navigate('Register Tag')}
+      >
+        <Text style={styles.registerButtonText}>Register New Tag</Text>
+      </TouchableOpacity>
+
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : tags.length === 0 ? (
@@ -65,6 +79,8 @@ const RegisteredTagsScreen = () => {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: "#f5f5f5" },
   title: { fontSize: 22, fontWeight: "bold", marginBottom: 15, textAlign: "center" },
+  registerButton: { backgroundColor: "#007bff", padding: 12, borderRadius: 5, marginBottom: 15, alignItems: "center" },
+  registerButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
   noData: { textAlign: "center", fontSize: 16, color: "gray" },
   tagItem: { backgroundColor: "#fff", padding: 15, borderRadius: 8, marginBottom: 10, elevation: 2 },
   tagText: { fontSize: 16, fontWeight: "bold" },
