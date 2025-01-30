@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View, Text, FlatList, ActivityIndicator, StyleSheet,
-  TouchableOpacity, Alert
-} from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { Text, ActivityIndicator, Snackbar, List, Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { db } from '../firebase/config';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
@@ -10,82 +8,66 @@ import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 const RegisteredTagsScreen = () => {
   const [tags, setTags] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const navigation = useNavigation(); // Navigation hook to navigate between screens
+  const [error, setError] = useState<string | null>(null);
+  const navigation = useNavigation();
 
   useEffect(() => {
     fetchTags();
   }, []);
 
-  // Fetch registered tags from Firestore
   const fetchTags = async () => {
     setLoading(true);
     try {
-      const querySnapshot = await getDocs(collection(db, "registeredTags"));
+      const querySnapshot = await getDocs(collection(db, 'registeredTags'));
       const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setTags(data);
-    } catch (error) {
-      console.error("Error fetching registered tags: ", error);
+    } catch {
+      setError('Failed to fetch tags.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Delete a tag from Firestore
   const deleteTag = async (tagId: string) => {
     try {
-      await deleteDoc(doc(db, "registeredTags", tagId));
-      Alert.alert("Deleted", "The tag has been removed.");
-      fetchTags(); // Refresh the list after deletion
-    } catch (error) {
-      Alert.alert("Error", "Failed to delete the tag.");
+      await deleteDoc(doc(db, 'registeredTags', tagId));
+      fetchTags();
+    } catch {
+      setError('Failed to delete tag.');
     }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Registered NFC Tags</Text>
-
-      {/* Button to Register a New Tag */}
-      <TouchableOpacity
-        style={styles.registerButton}
-        onPress={() => navigation.navigate('Register Tag')}
-      >
-        <Text style={styles.registerButtonText}>Register New Tag</Text>
-      </TouchableOpacity>
-
-      {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : tags.length === 0 ? (
-        <Text style={styles.noData}>No registered tags found</Text>
-      ) : (
-        <FlatList
-          data={tags}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.tagItem}>
-              <Text style={styles.tagText}>Tag Name: {item.tagName}</Text>
-              <Text style={styles.tagText}>Tag ID: {item.tagId}</Text>
-              <TouchableOpacity style={styles.deleteButton} onPress={() => deleteTag(item.id)}>
-                <Text style={styles.deleteText}>Delete</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        />
+      <Button mode="contained" onPress={() => navigation.navigate('Register Tag')} style={styles.button}>
+        Register New Tag
+      </Button>
+      {loading ? <ActivityIndicator animating={true} size="large" /> : (
+        tags.length === 0 ? <Text>No registered tags found</Text> : (
+          tags.map((item) => (
+            <List.Item
+              key={item.id}
+              title={`Tag Name: ${item.tagName}`}
+              description={`Tag ID: ${item.tagId}`}
+              right={() => (
+                <Button mode="text" onPress={() => deleteTag(item.id)} textColor="red">
+                  Delete
+                </Button>
+              )}
+            />
+          ))
+        )
       )}
+      {error && <Snackbar visible={!!error} onDismiss={() => setError(null)}>{error}</Snackbar>}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#f5f5f5" },
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 15, textAlign: "center" },
-  registerButton: { backgroundColor: "#007bff", padding: 12, borderRadius: 5, marginBottom: 15, alignItems: "center" },
-  registerButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
-  noData: { textAlign: "center", fontSize: 16, color: "gray" },
-  tagItem: { backgroundColor: "#fff", padding: 15, borderRadius: 8, marginBottom: 10, elevation: 2 },
-  tagText: { fontSize: 16, fontWeight: "bold" },
-  deleteButton: { backgroundColor: "red", padding: 8, borderRadius: 5, marginTop: 10 },
-  deleteText: { color: "#fff", fontWeight: "bold", textAlign: "center" },
+  container: { flex: 1, padding: 20, backgroundColor: '#f5f5f5' },
+  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
+  button: { marginBottom: 20 },
 });
 
 export default RegisteredTagsScreen;
