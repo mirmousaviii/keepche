@@ -1,71 +1,79 @@
 import React, { useState } from 'react';
-import { View, Text, Button, Alert, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { Button, Text, ActivityIndicator, Snackbar, Card } from 'react-native-paper';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import { db } from '../firebase/config';
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
 
-// Start the NFC manager
 NfcManager.start();
 
 const NfcScreen = () => {
     const [tagId, setTagId] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
-    // Scan an NFC tag
     const scanTag = async () => {
         try {
             setLoading(true);
+            setMessage(null);
+            setError(null);
+
             await NfcManager.requestTechnology(NfcTech.NfcA);
             const tag = await NfcManager.getTag();
 
             if (tag && tag.id) {
                 setTagId(tag.id);
-                Alert.alert("Tag Scanned!", `Tag ID: ${tag.id}`);
-
-                // Send data to Firestore
-                await sendDataToFirestore(tag.id);
+                await saveScanToFirestore(tag.id);
             }
-        } catch (err) {
-            Alert.alert("Error", "Failed to scan NFC tag.");
+        } catch {
+            setError("Failed to scan NFC tag.");
         } finally {
             setLoading(false);
             NfcManager.cancelTechnologyRequest();
         }
     };
 
-    //
-    const sendDataToFirestore = async (tagId: string) => {
+    const saveScanToFirestore = async (tagId: string) => {
         try {
             await addDoc(collection(db, "logs"), {
                 tagId,
                 activityType: "Watering",
                 timestamp: Timestamp.now(),
             });
-
-            Alert.alert("Success", "Activity logged successfully!");
-        } catch (error) {
-            Alert.alert("Error", "Failed to send data to Firestore.");
+            setMessage("Activity logged successfully.");
+        } catch {
+            setError("Failed to send data to server.");
         }
     };
 
     return (
       <View style={styles.container}>
           <Text style={styles.title}>Scan an NFC Tag</Text>
-          {tagId && <Text style={styles.tagText}>Tag ID: {tagId}</Text>}
-
-          {loading ? (
-            <ActivityIndicator size="large" color="#0000ff" />
-          ) : (
-            <Button title="Scan NFC" onPress={scanTag} />
-          )}
+          <Card style={styles.card}>
+              {loading ? (
+                <ActivityIndicator animating={true} size="large" />
+              ) : (
+                <>
+                    {tagId && <Text style={styles.tagText}>Tag ID: {tagId}</Text>}
+                    <Button mode="contained" onPress={scanTag} loading={loading} style={styles.button}>
+                        Scan NFC
+                    </Button>
+                </>
+              )}
+          </Card>
+          {message && <Snackbar visible={!!message} onDismiss={() => setMessage(null)}>{message}</Snackbar>}
+          {error && <Snackbar visible={!!error} onDismiss={() => setError(null)}>{error}</Snackbar>}
       </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
-    title: { fontSize: 20, fontWeight: "bold", marginBottom: 20 },
-    tagText: { fontSize: 16, marginVertical: 10, color: "blue" },
+    title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20 },
+    card: { width: '90%', padding: 20, alignItems: 'center', marginTop: 10 },
+    tagText: { fontSize: 16, marginVertical: 10, color: 'blue' },
+    button: { marginTop: 20 },
 });
 
 export default NfcScreen;
