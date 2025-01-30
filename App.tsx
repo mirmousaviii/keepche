@@ -1,7 +1,8 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { Button, Text } from 'react-native-paper';
 import NfcScreen from './src/screens/NfcScreen';
 import HistoryScreen from './src/screens/HistoryScreen';
 import RegisterTagScreen from './src/screens/RegisterTagScreen';
@@ -13,18 +14,18 @@ const HomeScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to Keepche</Text>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Scan NFC')}>
-        <Text style={styles.buttonText}>Go to NFC Scanner</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('History')}>
-        <Text style={styles.buttonText}>View NFC History</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Register Tag')}>
-        <Text style={styles.buttonText}>Register NFC Tag</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Registered Tags')}>
-        <Text style={styles.buttonText}>View Registered Tags</Text>
-      </TouchableOpacity>
+      <Text style={styles.description}>
+        Scan NFC tags, track activities, and manage your registered NFC tags with ease.
+      </Text>
+      <Button mode="contained" onPress={() => navigation.navigate('Scan NFC')} style={styles.button}>
+        Scan NFC
+      </Button>
+      <Button mode="contained" onPress={() => navigation.navigate('History')} style={styles.button}>
+        View NFC History
+      </Button>
+      <Button mode="contained" onPress={() => navigation.navigate('Registered Tags')} style={styles.button}>
+        View Registered Tags
+      </Button>
     </View>
   );
 };
@@ -44,10 +45,10 @@ const App = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: "#f5f5f5" },
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 20 },
-  button: { backgroundColor: "#007bff", padding: 12, borderRadius: 5, marginVertical: 10 },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20, backgroundColor: '#f5f5f5' },
+  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 10 },
+  description: { fontSize: 16, color: 'gray', textAlign: 'center', marginBottom: 20 },
+  button: { marginTop: 10, width: '90%' },
 });
 
 export default App;
