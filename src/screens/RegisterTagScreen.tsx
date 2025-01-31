@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Button, Text, TextInput, ActivityIndicator, Snackbar, Card } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, CommonActions } from '@react-navigation/native';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import { db } from '../firebase/config';
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
@@ -45,7 +45,14 @@ const RegisterTagScreen = () => {
     try {
       await addDoc(collection(db, "registeredTags"), { tagId, tagName, timestamp: Timestamp.now() });
       setMessage("Tag registered successfully.");
-      setTimeout(() => navigation.navigate("Registered Tags"), 1000);
+      setTimeout(() => {
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [{ name: 'Home' }, { name: 'Tags List' }],
+          })
+        );
+      }, 1000);
     } catch {
       setError("Failed to save tag to server.");
     }
@@ -103,8 +110,8 @@ const RegisterTagScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
-  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 10 },
+  container: { flex: 1, padding: 20, backgroundColor: '#f5f5f5', justifyContent: 'flex-start' },
+  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 10, marginTop: 20 },
   description: { fontSize: 16, color: 'gray', textAlign: 'center', marginBottom: 20 },
   card: { width: '90%', padding: 20, alignItems: 'center', marginTop: 10 },
   input: { width: '90%', marginVertical: 10 },
