@@ -15,16 +15,16 @@ const HomeScreen = ({ navigation }) => {
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to Keepche</Text>
       <Text style={styles.description}>
-        Scan NFC tags, track activities, and manage your registered NFC tags with ease.
+        Quickly add activities, track history, and manage your NFC tags.
       </Text>
-      <Button mode="contained" onPress={() => navigation.navigate('Scan NFC')} style={styles.button}>
-        Scan NFC
+      <Button mode="contained" onPress={() => navigation.navigate('Add Activity')} style={styles.button}>
+        Add Activity
       </Button>
-      <Button mode="contained" onPress={() => navigation.navigate('History')} style={styles.button}>
-        View NFC History
+      <Button mode="contained" onPress={() => navigation.navigate('Activity History')} style={styles.button}>
+        Activity History
       </Button>
-      <Button mode="contained" onPress={() => navigation.navigate('Registered Tags')} style={styles.button}>
-        View Registered Tags
+      <Button mode="contained" onPress={() => navigation.navigate('Tags List')} style={styles.button}>
+        Tags List
       </Button>
     </View>
   );
@@ -35,18 +35,18 @@ const App = () => {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Scan NFC" component={NfcScreen} />
-        <Stack.Screen name="History" component={HistoryScreen} />
+        <Stack.Screen name="Add Activity" component={NfcScreen} />
+        <Stack.Screen name="Activity History" component={HistoryScreen} />
         <Stack.Screen name="Register Tag" component={RegisterTagScreen} />
-        <Stack.Screen name="Registered Tags" component={RegisteredTagsScreen} />
+        <Stack.Screen name="Tags List" component={RegisteredTagsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20, backgroundColor: '#f5f5f5' },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 10 },
+  container: { flex: 1, justifyContent: 'flex-start', alignItems: 'center', padding: 20, backgroundColor: '#f5f5f5' },
+  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 10, marginTop: 20 },
   description: { fontSize: 16, color: 'gray', textAlign: 'center', marginBottom: 20 },
   button: { marginTop: 10, width: '90%' },
 });
