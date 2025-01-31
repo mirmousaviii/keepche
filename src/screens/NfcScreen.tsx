@@ -18,10 +18,8 @@ const NfcScreen = () => {
             setLoading(true);
             setMessage(null);
             setError(null);
-
             await NfcManager.requestTechnology(NfcTech.NfcA);
             const tag = await NfcManager.getTag();
-
             if (tag && tag.id) {
                 setTagId(tag.id);
                 await saveScanToFirestore(tag.id);
@@ -38,10 +36,10 @@ const NfcScreen = () => {
         try {
             await addDoc(collection(db, "logs"), {
                 tagId,
-                activityType: "Watering",
+                activityType: "General Activity",
                 timestamp: Timestamp.now(),
             });
-            setMessage("Activity logged successfully.");
+            setMessage("Activity added successfully.");
         } catch {
             setError("Failed to send data to server.");
         }
@@ -49,14 +47,17 @@ const NfcScreen = () => {
 
     return (
       <View style={styles.container}>
-          <Text style={styles.title}>Scan an NFC Tag</Text>
+          <Text style={styles.title}>Add a New Activity</Text>
+          <Text style={styles.description}>
+              Scan an NFC tag to log a new activity.
+          </Text>
           <Card style={styles.card}>
               {loading ? (
                 <ActivityIndicator animating={true} size="large" />
               ) : (
                 <>
                     {tagId && <Text style={styles.tagText}>Tag ID: {tagId}</Text>}
-                    <Button mode="contained" onPress={scanTag} loading={loading} style={styles.button}>
+                    <Button mode="contained" onPress={scanTag} style={styles.button}>
                         Scan NFC
                     </Button>
                 </>
@@ -69,9 +70,10 @@ const NfcScreen = () => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
-    title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20 },
-    card: { width: '90%', padding: 20, alignItems: 'center', marginTop: 10 },
+    container: { flex: 1, justifyContent: 'flex-start', alignItems: 'center', padding: 20 },
+    title: { fontSize: 22, fontWeight: 'bold', marginBottom: 10, marginTop: 20 },
+    description: { fontSize: 16, color: 'gray', textAlign: 'center', marginBottom: 20 },
+    card: { width: '90%', padding: 20, alignItems: 'center' },
     tagText: { fontSize: 16, marginVertical: 10, color: 'blue' },
     button: { marginTop: 20 },
 });
