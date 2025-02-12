@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Button, Text, TextInput, ActivityIndicator, Snackbar, Card } from 'react-native-paper';
+import { Button, Text, TextInput, ActivityIndicator, Snackbar } from 'react-native-paper';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import { db } from '../firebase/config';
@@ -64,15 +64,13 @@ const RegisterTagScreen = () => {
         <>
           <Text style={styles.title}>Step 1: Scan NFC Tag</Text>
           <Text style={styles.description}>Tap your NFC tag against the phone to scan.</Text>
-          <Card style={styles.card}>
-            {loading ? (
-              <ActivityIndicator animating={true} size="large" />
-            ) : (
-              <Button mode="contained" onPress={scanTag} style={styles.button}>
-                Scan NFC
-              </Button>
-            )}
-          </Card>
+          {loading ? (
+            <ActivityIndicator animating={true} size="large" />
+          ) : (
+            <Button mode="contained" onPress={scanTag} style={styles.button}>
+              Scan NFC
+            </Button>
+          )}
         </>
       )}
 
@@ -80,12 +78,16 @@ const RegisterTagScreen = () => {
         <>
           <Text style={styles.title}>Step 2: Enter Tag Name</Text>
           <Text style={styles.description}>Choose a name for your tag to easily identify it later.</Text>
-          <Card style={styles.card}>
-            <TextInput label="Tag Name" value={tagName} onChangeText={setTagName} style={styles.input} />
-            <Button mode="contained" onPress={() => setStep(3)} disabled={!tagName} style={styles.button}>
-              Next
-            </Button>
-          </Card>
+          <TextInput
+            label="Tag Name"
+            value={tagName}
+            onChangeText={setTagName}
+            style={styles.input}
+            mode="outlined"
+          />
+          <Button mode="contained" onPress={() => setStep(3)} disabled={!tagName} style={styles.button}>
+            Next
+          </Button>
         </>
       )}
 
@@ -93,13 +95,11 @@ const RegisterTagScreen = () => {
         <>
           <Text style={styles.title}>Step 3: Save Your Tag</Text>
           <Text style={styles.description}>Confirm and save your tag to the database.</Text>
-          <Card style={styles.card}>
-            <Text style={styles.tagInfo}>Tag ID: {tagId}</Text>
-            <Text style={styles.tagInfo}>Tag Name: {tagName}</Text>
-            <Button mode="contained" onPress={saveTag} style={styles.button}>
-              Save Tag
-            </Button>
-          </Card>
+          <Text style={styles.tagInfo}>Tag ID: {tagId}</Text>
+          <Text style={styles.tagInfo}>Tag Name: {tagName}</Text>
+          <Button mode="contained" onPress={saveTag} style={styles.button}>
+            Save Tag
+          </Button>
         </>
       )}
 
@@ -112,9 +112,8 @@ const RegisterTagScreen = () => {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#f5f5f5', justifyContent: 'flex-start' },
   title: { fontSize: 22, fontWeight: 'bold', marginBottom: 10, marginTop: 20 },
-  description: { fontSize: 16, color: 'gray', textAlign: 'center', marginBottom: 20 },
-  card: { width: '90%', padding: 20, alignItems: 'center', marginTop: 10 },
-  input: { width: '90%', marginVertical: 10 },
+  description: { fontSize: 16, color: 'gray', textAlign: 'left', marginBottom: 20 },
+  input: { width: '100%', marginBottom: 20 },
   tagInfo: { fontSize: 16, fontWeight: 'bold', marginBottom: 10 },
   button: { marginTop: 10 },
 });

@@ -39,9 +39,9 @@ const RegisteredTagsScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tags List</Text>
+      <Text style={styles.title}>Tags List & New Tag</Text>
       <Text style={styles.description}>
-        View and manage all registered NFC tags.
+        View and manage all registered NFC tags or add a new one.
       </Text>
       <Button mode="contained" onPress={() => navigation.navigate('Register Tag')} style={styles.button}>
         Register New Tag

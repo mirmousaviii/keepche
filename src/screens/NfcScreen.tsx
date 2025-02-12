@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Button, Text, ActivityIndicator, Snackbar, Card } from 'react-native-paper';
+import { Button, Text, ActivityIndicator, Snackbar } from 'react-native-paper';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import { db } from '../firebase/config';
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
@@ -51,18 +51,16 @@ const NfcScreen = () => {
           <Text style={styles.description}>
               Scan an NFC tag to log a new activity.
           </Text>
-          <Card style={styles.card}>
-              {loading ? (
-                <ActivityIndicator animating={true} size="large" />
-              ) : (
-                <>
-                    {tagId && <Text style={styles.tagText}>Tag ID: {tagId}</Text>}
-                    <Button mode="contained" onPress={scanTag} style={styles.button}>
-                        Scan NFC
-                    </Button>
-                </>
-              )}
-          </Card>
+          {loading ? (
+            <ActivityIndicator animating={true} size="large" />
+          ) : (
+            <>
+                {tagId && <Text style={styles.tagText}>Tag ID: {tagId}</Text>}
+                <Button mode="contained" onPress={scanTag} style={styles.button}>
+                    Scan NFC
+                </Button>
+            </>
+          )}
           {message && <Snackbar visible={!!message} onDismiss={() => setMessage(null)}>{message}</Snackbar>}
           {error && <Snackbar visible={!!error} onDismiss={() => setError(null)}>{error}</Snackbar>}
       </View>
@@ -70,10 +68,9 @@ const NfcScreen = () => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, justifyContent: 'flex-start', alignItems: 'center', padding: 20 },
+    container: { flex: 1, padding: 20, backgroundColor: '#f5f5f5', justifyContent: 'flex-start' },
     title: { fontSize: 22, fontWeight: 'bold', marginBottom: 10, marginTop: 20 },
-    description: { fontSize: 16, color: 'gray', textAlign: 'center', marginBottom: 20 },
-    card: { width: '90%', padding: 20, alignItems: 'center' },
+    description: { fontSize: 16, color: 'gray', textAlign: 'left', marginBottom: 20 },
     tagText: { fontSize: 16, marginVertical: 10, color: 'blue' },
     button: { marginTop: 20 },
 });
