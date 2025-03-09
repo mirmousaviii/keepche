@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Button, Text, TextInput, ActivityIndicator } from 'react-native-paper';
 import { useNavigation, CommonActions } from '@react-navigation/native';
-import NfcManager, { NfcTech } from 'react-native-nfc-manager';
+import NfcManager, { NfcTech, Ndef } from 'react-native-nfc-manager';
 import { db } from '../firebase/config';
 import { collection, addDoc, getDocs, query, where, Timestamp } from 'firebase/firestore';
 
@@ -14,6 +14,7 @@ const RegisterTagScreen = () => {
   const [tagName, setTagName] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [writing, setWriting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tagNameError, setTagNameError] = useState<string | null>(null);
   const navigation = useNavigation();
@@ -25,9 +26,9 @@ const RegisterTagScreen = () => {
       await NfcManager.requestTechnology(NfcTech.NfcA);
       const tag = await NfcManager.getTag();
       if (tag && tag.id) {
-        const isDuplicate = await checkIfTagExists(tag.id);
-        if (isDuplicate) {
-          setError("This tag is already registered. To register again, first delete the existing tag.");
+        const existingTag = await checkIfTagExists(tag.id);
+        if (existingTag) {
+          setError(`This tag is already registered with the name "${existingTag.tagName}".\nTo register it again, you need to delete the existing entry first.`);
           setTagId(null);
         } else {
           setTagId(tag.id);
@@ -35,7 +36,7 @@ const RegisterTagScreen = () => {
         }
       }
     } catch {
-      setError("Failed to scan NFC tag.");
+      setError("Could not scan the NFC tag.\nPlease try again.");
     } finally {
       setLoading(false);
       NfcManager.cancelTechnologyRequest();
@@ -45,7 +46,7 @@ const RegisterTagScreen = () => {
   const checkIfTagExists = async (tagId: string) => {
     const q = query(collection(db, "registeredTags"), where("tagId", "==", tagId));
     const querySnapshot = await getDocs(q);
-    return !querySnapshot.empty;
+    return querySnapshot.empty ? null : querySnapshot.docs[0].data();
   };
 
   const checkIfTagNameExists = async (tagName: string) => {
@@ -56,30 +57,44 @@ const RegisterTagScreen = () => {
 
   const saveTag = async () => {
     if (!tagId) {
-      setError("Tag ID is required.");
+      setError("Error: No NFC tag detected.");
       return;
     }
 
     setSaving(true);
     const isNameDuplicate = await checkIfTagNameExists(tagName);
     if (isNameDuplicate) {
-      setTagNameError("This tag name is already in use. Please choose a different name.");
+      setTagNameError("This name is already taken.\nPlease choose another name.");
       setSaving(false);
       return;
     }
 
     try {
       await addDoc(collection(db, "registeredTags"), { tagId, tagName, timestamp: Timestamp.now() });
-      navigation.dispatch(
-        CommonActions.reset({
-          index: 1,
-          routes: [{ name: 'Home' }, { name: 'Tags List', params: { successMessage: "Tag registered successfully." } }],
-        })
-      );
+      setStep(3);
     } catch {
-      setError("Failed to save tag to server.");
+      setError("Could not save the tag.\nPlease try again.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const writeNfcTag = async () => {
+    if (!tagId) return;
+
+    setWriting(true);
+    const uri = `keepche://log?tagId=${tagId}`;
+    const bytes = Ndef.encodeMessage([Ndef.uriRecord(uri)]);
+
+    try {
+      await NfcManager.requestTechnology(NfcTech.Ndef);
+      await NfcManager.ndefHandler.writeNdefMessage(bytes);
+      setStep(4);
+    } catch {
+      setError("Could not write data to the NFC tag.\nMake sure your tag is compatible and try again.");
+    } finally {
+      setWriting(false);
+      NfcManager.cancelTechnologyRequest();
     }
   };
 
@@ -87,13 +102,15 @@ const RegisterTagScreen = () => {
     <View style={styles.container}>
       {step === 1 && (
         <>
-          <Text style={styles.title}>Scan NFC Tag</Text>
-          <Text style={styles.description}>Tap your NFC tag against the phone to scan.</Text>
+          <Text style={styles.title}>Scan an NFC Tag</Text>
+          <Text style={styles.description}>
+            Tap the <Text style={styles.bold}>Scan NFC Tag</Text> button below, then place your NFC tag against the back of your phone.
+          </Text>
           {loading ? (
             <ActivityIndicator animating={true} size="large" />
           ) : (
             <Button mode="contained" onPress={scanTag} style={styles.button}>
-              Scan NFC
+              Scan NFC Tag
             </Button>
           )}
           {error && <Text style={styles.errorText}>{error}</Text>}
@@ -102,8 +119,10 @@ const RegisterTagScreen = () => {
 
       {step === 2 && (
         <>
-          <Text style={styles.title}>Enter Tag Name & Save</Text>
-          <Text style={styles.description}>Choose a name for your tag and save it to the system.</Text>
+          <Text style={styles.title}>Assign a Name</Text>
+          <Text style={styles.description}>
+            Enter a unique name for this tag.{"\n"}This will help you recognize it later.
+          </Text>
           <TextInput
             label="Tag Name"
             value={tagName}
@@ -121,9 +140,50 @@ const RegisterTagScreen = () => {
             <ActivityIndicator animating={true} size="large" />
           ) : (
             <Button mode="contained" onPress={saveTag} style={styles.button}>
-              Save Tag
+              Save Tag Name
             </Button>
           )}
+        </>
+      )}
+
+      {step === 3 && (
+        <>
+          <Text style={styles.title}>Write Data to NFC Tag</Text>
+          <Text style={styles.description}>
+            Tap the <Text style={styles.bold}>Write Data to NFC Tag</Text> button below,{"\n"}then place your NFC tag against the back of your phone again.{"\n"}{"\n"}
+            If your phone does not detect the tag, move it away and bring it back.
+          </Text>
+          {writing ? (
+            <ActivityIndicator animating={true} size="large" />
+          ) : (
+            <Button mode="contained" onPress={writeNfcTag} style={styles.button}>
+              Write Data to NFC Tag
+            </Button>
+          )}
+          {error && <Text style={styles.errorText}>{error}</Text>}
+        </>
+      )}
+
+      {step === 4 && (
+        <>
+          <Text style={styles.title}>Registration Complete</Text>
+          <Text style={styles.description}>
+            This tag is now registered and ready to use.{"\n"}When scanned, it will automatically log an activity.
+          </Text>
+          <Button
+            mode="contained"
+            onPress={() =>
+              navigation.dispatch(
+                CommonActions.reset({
+                  index: 1,
+                  routes: [{ name: 'Home' }, { name: 'Tags List', params: { successMessage: "Tag registered successfully." } }],
+                })
+              )
+            }
+            style={styles.button}
+          >
+            Done
+          </Button>
         </>
       )}
     </View>
@@ -133,11 +193,12 @@ const RegisterTagScreen = () => {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#f5f5f5', justifyContent: 'flex-start' },
   title: { fontSize: 22, fontWeight: 'bold', marginBottom: 10, marginTop: 20 },
-  description: { fontSize: 16, color: 'gray', textAlign: 'left', marginBottom: 20 },
+  description: { fontSize: 16, color: 'gray', textAlign: 'left', marginBottom: 20, lineHeight: 24 },
+  bold: { fontWeight: 'bold' },
   input: { width: '100%', marginBottom: 10 },
   inputErrorBackground: { backgroundColor: '#ffe6e6' },
   tagInfo: { fontSize: 16, fontWeight: 'bold', marginBottom: 10 },
-  errorText: { color: 'red', fontSize: 14, marginBottom: 10, textAlign: 'left' },
+  errorText: { color: 'red', fontSize: 14, marginBottom: 10, textAlign: 'left', lineHeight: 22 },
   button: { marginTop: 10 },
 });
 
