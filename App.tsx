@@ -16,17 +16,15 @@ const HomeScreen = ({ navigation }) => {
       <Text style={styles.title}>Manage Activities</Text>
       <Text style={styles.description}>
         Keep track of your activities with NFC tags.{"\n"}
-        Scan tags to log activities, view history, and manage your tags.
+        Simply tap your NFC tag near the phone to automatically log an activity.
       </Text>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Add a new activity</Text>
+        <Text style={styles.sectionTitle}>How to log activities?</Text>
         <Text style={styles.sectionDescription}>
-          Tap an NFC tag to log a new activity in your history.
+          No need to press any button! Just bring your registered NFC tag near your phone.{"\n"}
+          The activity will be logged automatically, and a notification will confirm the success.
         </Text>
-        <Button mode="contained" onPress={() => navigation.navigate('Add Activity')} style={styles.button}>
-          Add Activities Manually
-        </Button>
       </View>
 
       <View style={styles.section}>
@@ -82,7 +80,6 @@ const App = () => {
     <NavigationContainer ref={navigationRef}>
       <Stack.Navigator screenOptions={{ headerTitle: 'Keepche' }}>
         <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Add Activity" component={NfcScreen} />
         <Stack.Screen name="Activity History" component={HistoryScreen} />
         <Stack.Screen name="Register Tag" component={RegisterTagScreen} />
         <Stack.Screen name="Tags List" component={RegisteredTagsScreen} />
