@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Linking } from 'react-native';
 import { Button, Text } from 'react-native-paper';
 import NfcScreen from './src/screens/NfcScreen';
 import HistoryScreen from './src/screens/HistoryScreen';
@@ -15,7 +15,7 @@ const HomeScreen = ({ navigation }) => {
     <View style={styles.container}>
       <Text style={styles.title}>Manage Activities</Text>
       <Text style={styles.description}>
-        Keep track of your activities with NFC tags.
+        Keep track of your activities with NFC tags.{"\n"}
         Scan tags to log activities, view history, and manage your tags.
       </Text>
 
@@ -25,7 +25,7 @@ const HomeScreen = ({ navigation }) => {
           Tap an NFC tag to log a new activity in your history.
         </Text>
         <Button mode="contained" onPress={() => navigation.navigate('Add Activity')} style={styles.button}>
-          Add Activity
+          Add Activities Manually
         </Button>
       </View>
 
@@ -53,14 +53,40 @@ const HomeScreen = ({ navigation }) => {
 };
 
 const App = () => {
+  const navigationRef = useRef();
+
+  useEffect(() => {
+    const handleDeepLink = (event) => {
+      const url = event.url || event;
+      if (!url) return;
+      try {
+        const match = url.match(/keepche:\/\/log\?tagId=(.+)/);
+        if (match && match[1] && navigationRef.current) {
+          const tagId = decodeURIComponent(match[1]);
+          navigationRef.current.navigate('Log Activity', { tagId });
+        }
+      } catch (error) {
+        console.error("Failed to process deep link:", error);
+      }
+    };
+
+    Linking.getInitialURL().then(handleDeepLink);
+    const subscription = Linking.addEventListener('url', handleDeepLink);
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator screenOptions={{ headerTitle: 'Keepche' }}>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Add Activity" component={NfcScreen} />
         <Stack.Screen name="Activity History" component={HistoryScreen} />
         <Stack.Screen name="Register Tag" component={RegisterTagScreen} />
         <Stack.Screen name="Tags List" component={RegisteredTagsScreen} />
+        <Stack.Screen name="Log Activity" component={NfcScreen} options={{ title: "Logging Activity..." }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -69,7 +95,7 @@ const App = () => {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#f5f5f5', justifyContent: 'flex-start' },
   title: { fontSize: 28, fontWeight: 'bold', marginBottom: 15 },
-  description: { fontSize: 16, color: 'gray', textAlign: 'left', marginBottom: 25 },
+  description: { fontSize: 16, color: 'gray', textAlign: 'left', marginBottom: 25, lineHeight: 22 },
   section: { marginBottom: 20 },
   sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 5 },
   sectionDescription: { fontSize: 14, color: 'black', marginBottom: 10, lineHeight: 20 },
