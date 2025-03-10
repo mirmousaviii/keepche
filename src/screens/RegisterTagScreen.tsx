@@ -19,6 +19,7 @@ const RegisterTagScreen = () => {
   const [tagNameError, setTagNameError] = useState<string | null>(null);
   const navigation = useNavigation();
 
+  // Scan NFC tag
   const scanTag = async () => {
     try {
       setLoading(true);
@@ -43,18 +44,21 @@ const RegisterTagScreen = () => {
     }
   };
 
+  // Check if the NFC tag is already registered
   const checkIfTagExists = async (tagId: string) => {
     const q = query(collection(db, "registeredTags"), where("tagId", "==", tagId));
     const querySnapshot = await getDocs(q);
     return querySnapshot.empty ? null : querySnapshot.docs[0].data();
   };
 
+  // Check if the tag name already exists
   const checkIfTagNameExists = async (tagName: string) => {
     const q = query(collection(db, "registeredTags"), where("tagName", "==", tagName));
     const querySnapshot = await getDocs(q);
     return !querySnapshot.empty;
   };
 
+  // Save tag information to Firestore
   const saveTag = async () => {
     if (!tagId) {
       setError("Error: No NFC tag detected.");
@@ -79,12 +83,16 @@ const RegisterTagScreen = () => {
     }
   };
 
+  // Write deep link and AAR to NFC tag
   const writeNfcTag = async () => {
     if (!tagId) return;
 
     setWriting(true);
-    const uri = `keepche://log?tagId=${tagId}`;
-    const bytes = Ndef.encodeMessage([Ndef.uriRecord(uri)]);
+    const deepLink = `keepche://log?tagId=${tagId}`;
+    const bytes = Ndef.encodeMessage([
+      Ndef.uriRecord(deepLink),
+      Ndef.androidApplicationRecord("com.keepche") // Ensures the app opens automatically
+    ]);
 
     try {
       await NfcManager.requestTechnology(NfcTech.Ndef);
@@ -104,7 +112,7 @@ const RegisterTagScreen = () => {
         <>
           <Text style={styles.title}>Scan an NFC Tag</Text>
           <Text style={styles.description}>
-            Tap the <Text style={styles.bold}>Scan NFC Tag</Text> button below, then place your NFC tag against the back of your phone.
+            Tap the "Scan NFC Tag" button below, then place your NFC tag against the back of your phone.
           </Text>
           {loading ? (
             <ActivityIndicator animating={true} size="large" />
@@ -150,8 +158,7 @@ const RegisterTagScreen = () => {
         <>
           <Text style={styles.title}>Write Data to NFC Tag</Text>
           <Text style={styles.description}>
-            Tap the <Text style={styles.bold}>Write Data to NFC Tag</Text> button below,{"\n"}then place your NFC tag against the back of your phone again.{"\n"}{"\n"}
-            If your phone does not detect the tag, move it away and bring it back.
+            Tap the "Write Data to NFC Tag" button below,{"\n"}then place your NFC tag against the back of your phone again.
           </Text>
           {writing ? (
             <ActivityIndicator animating={true} size="large" />
@@ -166,9 +173,9 @@ const RegisterTagScreen = () => {
 
       {step === 4 && (
         <>
-          <Text style={styles.title}>Registration Complete</Text>
+          <Text style={styles.title}>Tag Registered Successfully</Text>
           <Text style={styles.description}>
-            This tag is now registered and ready to use.{"\n"}When scanned, it will automatically log an activity.
+            The NFC tag has been registered successfully.{"\n"}You can now use it to log activities.
           </Text>
           <Button
             mode="contained"
@@ -189,6 +196,7 @@ const RegisterTagScreen = () => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#f5f5f5', justifyContent: 'flex-start' },

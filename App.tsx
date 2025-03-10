@@ -20,11 +20,14 @@ const HomeScreen = ({ navigation }) => {
       </Text>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>How to log activities?</Text>
+        <Text style={styles.sectionTitle}>Log activities</Text>
         <Text style={styles.sectionDescription}>
           No need to press any button! Just bring your registered NFC tag near your phone.{"\n"}
           The activity will be logged automatically, and a notification will confirm the success.
         </Text>
+        <Button mode="contained" onPress={() => navigation.navigate('Log Activity')} style={styles.button}>
+          Log Activity Manually
+        </Button>
       </View>
 
       <View style={styles.section}>
