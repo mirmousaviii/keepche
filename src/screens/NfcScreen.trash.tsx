@@ -8,7 +8,7 @@ import { collection, addDoc, getDocs, query, where, Timestamp } from 'firebase/f
 
 NfcManager.start();
 
-const NfcScreen = () => {
+const NfcScreenTrash = () => {
     const navigation = useNavigation();
     const route = useRoute();
     const { tagId: deepLinkTagId } = route.params || {};
@@ -142,4 +142,4 @@ const styles = StyleSheet.create({
     loadingIndicator: { marginTop: 30 },
 });
 
-export default NfcScreen;
+export default NfcScreenTrash;
