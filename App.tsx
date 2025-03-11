@@ -127,7 +127,7 @@ const HomeScreen = ({ navigation }) => {
 
     await notifee.displayNotification({
       title: 'Activity Logged',
-      body: `Activity for tag "${tagName}" was logged at ${timestamp}.`,
+      body: `"${tagName}" was logged at ${timestamp}.`,
       android: {
         channelId,
         pressAction: {
