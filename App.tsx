@@ -19,6 +19,7 @@ const HomeScreen = ({ navigation }) => {
   const [scanning, setScanning] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isScanning, setIsScanning] = useState(false); // new state to manage scanning status
 
   // useEffect(() => {
   //   scanTag(); // Automatic NFC scan on page load
@@ -26,7 +27,7 @@ const HomeScreen = ({ navigation }) => {
 
 
   //  Log NFC activity on page load
-  const navigationRef = useRef();
+  const navigationRef = useRef(null);
 
   useEffect(() => {
     const handleDeepLink = (event) => {
@@ -56,7 +57,13 @@ const HomeScreen = ({ navigation }) => {
 
   // Function to scan NFC tag (automatic & manual)
   const scanTag = async () => {
+    if (isScanning) {
+      cancelScan();
+      return;
+    }
+
     try {
+      setIsScanning(true);
       setScanning(true);
       setError(null);
       await NfcManager.requestTechnology(NfcTech.NfcA);
@@ -64,12 +71,25 @@ const HomeScreen = ({ navigation }) => {
       if (tag && tag.id) {
         logActivity(tag.id);
       }
-    } catch {
-      setError("Failed to scan NFC tag. Please try again.");
+    } catch (e: any) {
+      if (isScanning) {
+        setError("Failed to scan NFC tag. Please try again.");
+      }
     } finally {
       setScanning(false);
+      setIsScanning(false);
       NfcManager.cancelTechnologyRequest();
     }
+  };
+
+  const cancelScan = () => {
+    NfcManager.cancelTechnologyRequest().then(() => {
+      setIsScanning(false);
+      setScanning(false);
+      setMessage("Scanning cancelled.");
+    }).catch(error => {
+      console.warn("cancel scan error", error);
+    });
   };
 
   // Function to log NFC activity
@@ -156,9 +176,8 @@ const HomeScreen = ({ navigation }) => {
           onPress={scanTag}
           style={styles.button}
           contentStyle={styles.buttonContent}
-          disabled={scanning}
         >
-          {scanning ? <ActivityIndicator animating={true} size="small"/> : "Scan Tag Manually"}
+          {scanning ? <ActivityIndicator animating={true} size="small" color="white"/> : "Scan Tag Manually"}
         </Button>
         {error && <Text style={styles.errorText}>{error}</Text>}
       </View>
@@ -214,8 +233,8 @@ const styles = StyleSheet.create({
   section: { marginBottom: 20 },
   sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 5 },
   sectionDescription: { fontSize: 14, color: 'black', marginBottom: 10, lineHeight: 20 },
-  button: { padding: 5, marginBottom: 3 },
-  buttonContent: { width: '100%'},
+  button: {marginBottom: 3 },
+  buttonContent: { width: '100%', height: 60},
   errorText: { color: 'red', fontSize: 14, marginTop: 5, textAlign: 'center' },
 });
 
