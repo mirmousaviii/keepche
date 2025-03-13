@@ -1,6 +1,57 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Overview
 
-# Getting Started
+Keepche is a React Native application that allows users to log activities automatically using NFC tags. Users can register NFC tags with custom names, and whenever a tag is scanned, an activity is automatically logged and stored.
+
+# Features
+
+* Automatic NFC Scanning – Logs activities when an NFC tag is tapped.
+* Manual Scanning – Users can manually trigger NFC scanning from the home screen.
+* Activity History – View previously logged activities.
+* Tag Management – Register new NFC tags and manage them in a dedicated list.
+* Background Processing – The app sends a notification when an activity is logged, even if the app is in the background.
+
+# Usage Guide
+### 1. Register a New NFC Tag
+1. Navigate to the **"Tags List & New Tag"** section.
+2. Tap **"Register a New NFC Tag"** and scan an NFC tag.
+3. Assign a unique name to the tag.
+4. The tag is now saved in the database and ready to use.
+
+### 2. Log an Activity with NFC
+- **Simply tap an NFC tag near your phone.**
+- The app will detect the tag and **automatically log an activity**.
+- A **notification** will confirm that the activity was logged.
+
+### 3. View Activity History
+- Open the **"Activity History"** section.
+- See all previously **logged activities with timestamps**.
+- Activities are stored in Firebase Firestore.
+
+### 4. Manually Scan an NFC Tag
+- Tap **"Scan Activity Manually"** on the home screen.
+- This will start the NFC scanning process.
+- If you tap the button again while scanning, the process will **cancel**.
+
+# Technologies
+ 
+- **React Native** – UI framework for mobile development
+- **TypeScript** – Strongly-typed JavaScript
+- **Firebase Firestore** – Cloud database for storing logs and tags
+- **React Navigation** – Navigation handling between screens
+- **Notifee** – Push notifications for activity confirmation
+- **react-native-nfc-manager** – NFC scanning and writing library
+- **React Native Paper** – UI components and styling
+- **Android Application Record (AAR)** – Ensures automatic app launch when scanning NFC tags
+
+# Screenshots
+
+![screenshots](./screenshots/screenshot01.png)
+![screenshots](./screenshots/screenshot02.png)
+![screenshots](./screenshots/screenshot03.png)
+
+# How to run this app
+
+Based on the [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
 > **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
 
@@ -61,37 +112,3 @@ yarn ios
 If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
 
 This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
