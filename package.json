@@ -19,7 +19,7 @@
     "@react-navigation/stack": "^7.1.2",
     "axios": "^1.8.2",
     "react": "19.1.0",
-    "react-native": "0.78.1",
+    "react-native": "0.80.1",
     "react-native-gesture-handler": "^2.24.0",
     "react-native-nfc-manager": "^3.16.1",
     "react-native-paper": "^5.13.1",
