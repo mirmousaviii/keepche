@@ -18,7 +18,7 @@
     "@react-navigation/native": "^7.0.15",
     "@react-navigation/stack": "^7.1.2",
     "axios": "^1.8.2",
-    "react": "19.1.0",
+    "react": "19.1.1",
     "react-native": "0.80.1",
     "react-native-gesture-handler": "^2.24.0",
     "react-native-nfc-manager": "^3.16.1",
@@ -45,7 +45,7 @@
     "eslint": "^9.0.0",
     "jest": "^30.0.0",
     "prettier": "3.6.2",
-    "react-test-renderer": "19.1.0",
+    "react-test-renderer": "19.1.1",
     "typescript": "5.8.3"
   },
   "engines": {
